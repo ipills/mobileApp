@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "877344907712",
+    "project_id": "ipills",
+    "storage_bucket": "ipills.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:877344907712:android:e135a6cd7f0f9306db6825",
+        "android_client_info": {
+          "package_name": "com.fdpg.iPills"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "877344907712-sn14aeb4gjpehts5l3ll0ho0ha915391.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUJCwlWBxXBbiWVEPvmi6od-m7Q_SZqQU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "877344907712-sn14aeb4gjpehts5l3ll0ho0ha915391.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
