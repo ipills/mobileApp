@@ -40,13 +40,6 @@ export default function FarmaciaMapScreen() {
     const [delivery, setDelivery] = useState(false)
     const [farmacia, setFarmacia] = useState([]);
 
-    const regiao = {
-        latitude: 41.15,
-        longitude: -8.6,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-    };
-
     useOnceCall(async () => {
         const currentUserUid = await AsyncStorage.getItem('currentUserUid')
         console.log(currentUserUid)
@@ -117,10 +110,18 @@ export default function FarmaciaMapScreen() {
                     longitudeDelta: 0.0421,
                 }}
             >
-                <Marker
-                    coordinate={regiao}
-                    pinColor="#ff8c52"
-                />
+                {farmacia.map(f => (
+                    <Marker
+                        key={f.key}
+                        coordinate={{
+                            latitude: parseFloat(f.lat),
+                            longitude: parseFloat(f.long),
+                            latitudeDelta: 0.0922,
+                            longitudeDelta: 0.0421
+                        }}
+                        pinColor="#ff8c52"
+                    />
+                ))}
             </MapView>
         </View>
     )

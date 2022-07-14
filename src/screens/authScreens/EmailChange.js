@@ -4,6 +4,7 @@ import React, { Component } from 'react'
 import * as firebase from 'firebase'
 import { colors } from '../../global/styles'
 import Header from '../../components/Header'
+import { db } from '../../../firebase'
 
 
 export default class EmailChange extends React.Component {
@@ -15,6 +16,7 @@ export default class EmailChange extends React.Component {
             currentPassword: "",
             newPassword: "",
             textEntry: true,
+
         };
 
     }
@@ -44,9 +46,14 @@ export default class EmailChange extends React.Component {
         this.reauthenticate(this.state.currentPassword).then(() => {
             var user = firebase.auth().currentUser;
             user.updateEmail(this.state.newEmail).then(() => {
-                var updates = {};
-                updates['/users/' + user.uid] = this.props.newEmail;
-                Alert.alert("Email Alterado com Sucesso!");
+                console.log(user);
+                db.ref().child('users').child(user.uid).update({
+                    email: this.state.newEmail
+                }).then(() => {
+                    Alert.alert("Email Alterado com Sucesso!");
+                }).catch((error) => {
+                    Alert.alert(error.message);
+                });
             }).catch((error) => {
                 Alert.alert(error.message);
             });

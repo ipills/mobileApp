@@ -56,11 +56,12 @@ const SearchResultCard = ({
 
     function getProdutos() {
         const db = firebase.database().ref();
-        db.child('farmacias').get().then((snapshot) => {
+        db.child('productData').get().then((snapshot) => {
             if (snapshot.exists()) {
                 const produtos = snapshotToArray(snapshot);
                 if (snapshot !== "") {
-                    const data = produtos.filter(data_ => data_.productData)
+                    const data = produtos
+                    console.log("snapshot")
                     setProdutos(data)
                 } else {
                     console.log("Não aconteceu")
@@ -116,7 +117,7 @@ const SearchResultCard = ({
                     renderItem={({ item, index }) => {
                         return (
                             <ProductCard
-                                name={item.productData.name}
+                                name={item.name}
                                 image={item.image}
                                 price={item.price}
                             />

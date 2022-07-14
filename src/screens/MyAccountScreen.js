@@ -27,8 +27,10 @@ export default function MyAccountScreen() {
         auth
             .signOut()
             .then(async () => {
-                await AsyncStorage.setItem('currentUserUid', '');
-                navigation.navigate('SignInScreen')
+                await AsyncStorage.removeItem('currentUserUid');
+                navigation.navigate('AuthStack', {
+                    screen: 'SignInScreen'
+                });
             })
             .catch(error => alert(error.message))
     }
@@ -56,7 +58,6 @@ export default function MyAccountScreen() {
                 }}>
                     <Avatar
                         rounded
-                        avatarStyle={styles.avatar}
                         size={75}
                         imageProps={{ resizeMode: 'contain', height: 80, width: 80 }}
                         source={{ uri: userData.image }}
@@ -70,7 +71,7 @@ export default function MyAccountScreen() {
                 </View>
             </View>
 
-            <Text style={{ ...styles.titleText, marginTop: 12 }}>Conta</Text>
+            <Text style={{ ...styles.titleText, marginTop: 12 }}>Definições de Conta</Text>
             <TouchableOpacity
                 style={{ paddingLeft: 15 }}
             >
@@ -86,6 +87,7 @@ export default function MyAccountScreen() {
             </TouchableOpacity>
             <TouchableOpacity
                 style={{ paddingLeft: 15 }}
+                onPress={() => navigation.navigate('ChangeAddress')}
             >
                 <View style={{ flexDirection: 'row', paddingTop: 20, alignItems: 'center' }}>
                     <Icon
@@ -159,23 +161,6 @@ export default function MyAccountScreen() {
                     <Text style={styles.settingText}>Terminar Sessão</Text>
                 </View>
             </TouchableOpacity>
-            <Text style={styles.titleText}>Outras Opções</Text>
-            <View style={{ flexDirection: 'row', paddingTop: 10, paddingBottom: 20, alignItems: 'center', paddingLeft: 15 }}>
-                <Icon
-                    type="material-community"
-                    name="brightness-6"
-                    color={colors.grey2}
-                    size={28}
-                />
-                <Text style={styles.settingText}>Modo Escuro</Text>
-                <View style={{ paddingRight: 10 }}>
-                    <Switch
-                        style={{ paddingLeft: 170 }}
-                        trackColor={{ false: "#767577", true: "#81b0ff" }}
-                        thumbColor="#f4f3f4"
-                    />
-                </View>
-            </View>
         </View>
     )
 }
@@ -184,11 +169,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         marginTop: 30,
-    },
-
-    avatar: {
-        borderWidth: 4,
-        borderColor: colors.pagebackground
     },
 
     preferences: {

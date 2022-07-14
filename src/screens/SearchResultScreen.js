@@ -36,14 +36,15 @@ function snapshotToArray(snapshot) {
 const SearchResultScreen = ({ navigation, route }) => {
 
     const [farmacia, setFarmacia] = useState([]);
+    const [productDat, setProductDat] = useState([]);
 
     useOnceCall(async () => {
         const currentUserUid = await AsyncStorage.getItem('currentUserUid')
         console.log(currentUserUid)
         db.ref().child("users").child(currentUserUid).get().then((snapshot) => {
-            // console.log(snapshot);
             if (snapshot.exists()) {
                 getData();
+                getProduct();
             } else {
                 console.log("No data available");
             }
@@ -58,7 +59,6 @@ const SearchResultScreen = ({ navigation, route }) => {
             if (snapshot.exists()) {
                 const farmacia = snapshotToArray(snapshot);
                 if (snapshot !== "") {
-                    console.log("Sucesso");
                     const data = farmacia
                     setFarmacia(data)
                 } else {
@@ -69,7 +69,23 @@ const SearchResultScreen = ({ navigation, route }) => {
             }
         }).catch((error) => {
             console.error(error);
-        });
+        }); //
+    }
+    function getProduct() {
+        const db = firebase.database().ref();
+        db.child('productData').get().then((snapshot) => {
+            if (snapshot.exists()) {
+                const productDat = snapshotToArray(snapshot);
+
+                const data = productDat
+                setProductDat(data)
+
+                console.log("Aconteceu")
+
+            }
+        }).catch((error) => {
+            console.error(error);
+        }); //
     }
 
     return (
@@ -88,10 +104,17 @@ const SearchResultScreen = ({ navigation, route }) => {
                                     farmaciaName={item.nome}
                                     distancia={item.distancia}
                                     farmaciaMorada={item.farmaciaMorada}
-                                    productData={item.productData}
+                                    tempoEnt={item.tempoEntrega}
+                                    tempoRec={item.tempoRecolha}
+                                    productData={productDat}
                                     OnPressFarmaciaCard={() => {
                                         if (item.distancia < 100) {
-                                            { navigation.navigate("FarmaciaHomeScreen", { id: index, farmacia: item.nome }) }
+                                            {
+                                                navigation.navigate("FarmaciaHomeScreen", {
+                                                    farmaciaNome: item.nome, farmaciaImage: item.image, farmaciaDist: item.distancia,
+                                                    morada: item.farmaciaMorada, productosData: productDat, entrega: item.tempoEntrega, recolha: item.tempoRecolha
+                                                })
+                                            }
                                         } else {
                                             Alert.alert("Atenção", "Esta Farmácia não esta disponivel para entrega ao seu local")
                                         }

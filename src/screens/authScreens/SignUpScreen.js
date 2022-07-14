@@ -77,7 +77,7 @@ const SignUpScreen = () => {
       codPostal: postal,
       nif: nif,
       pedidos: "",
-      image: ""
+      image: "https://imagesipills.s3.eu-west-3.amazonaws.com/noimageuser.jpg"
 
     }).then(() => {
       alert('Sucesso')

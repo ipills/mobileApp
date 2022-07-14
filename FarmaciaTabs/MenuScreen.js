@@ -1,45 +1,84 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList } from 'react-native'
+import React, { useRef, useEffect, useState } from 'react'
 import { colors, Icon } from 'react-native-elements'
 import { filterData2 } from '../src/global/data'
 import { useNavigation } from '@react-navigation/native'
 
-const MenuScreen = ({
-    productData,
-}) => {
+function useOnceCall(cb, condition = true) {
+    const isCalledRef = useRef(false);
+
+    useEffect(() => {
+        if (condition && !isCalledRef.current) {
+            isCalledRef.current = true;
+            cb();
+        }
+    }, [cb, condition]);
+}
+
+function snapshotToArray(snapshot) {
+    var returnArr = [];
+
+    snapshot.forEach(function (childSnapshot) {
+        var item = childSnapshot.val();
+        item.key = childSnapshot.key;
+
+        returnArr.push(item);
+    });
+
+    return returnArr;
+};
+
+const MenuScreen = () => {
 
     const navigation = useNavigation();
+    const [productDat, setProductDat] = useState([]);
 
-    const handlePress = () => {
-        navigation.navigate("PreferenceScreen")
+    useOnceCall(async () => {
+        const currentUserUid = await AsyncStorage.getItem('currentUserUid')
+        console.log(currentUserUid)
+        db.ref().child("users").child(currentUserUid).get().then((snapshot) => {
+            if (snapshot.exists()) {
+                getData();
+                getProduct();
+            } else {
+                console.log("No data available");
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+    }, true);
+
+    function getProduct() {
+        const db = firebase.database().ref();
+        db.child('productData').get().then((snapshot) => {
+            if (snapshot.exists()) {
+                const productDat = snapshotToArray(snapshot);
+                if (snapshot !== "") {
+                    const data = productDat
+                    setProductDat(data)
+                } else {
+                    console.log("Não aconteceu")
+                }
+            } else {
+                console.log("No data available");
+            }
+        }).catch((error) => {
+            console.error(error);
+        }); //
     }
-
     return (
         <View styles={styles.container}>
-            <View>
-                {filterData2.map((item, index) =>
-                    <View key={item.id} style={styles.view1}>
-                        <TouchableOpacity onPress={handlePress}>
-                            <View style={styles.view2}>
-                                <Text style={styles.text1}>{item.name}</Text>
-                                {productData.filter(product => product.categoria === item.name).map(product => {
-                                    return (
-                                        <>
-                                            <View key={product.id} style={styles.view3}>
-                                                <Text style={styles.text2}>{product.name}</Text>
-                                                <Text style={styles.text3}>€{product.price.toFixed(2)}</Text>
-                                            </View>
-                                            <View style={styles.row}>
-                                                <Image source={{ uri: product.image }} style={styles.image} />
-                                            </View>
-                                        </>
-                                    )
-                                })}
-                            </View>
-                        </TouchableOpacity>
-                    </View>
+            <FlatList
+                data={productDat}
+                name={productDat.name}
+                price={productDat.price}
+                image={productDat.image}
+                keyExtractor={(item) => item.key}
+                renderItem={({ item, index }) => (
+                    <TouchableOpacity onPress={() => navigation.navigate('PreferenceScreen', { item })}>
+                    </TouchableOpacity>
                 )}
-            </View>
+            />
         </View>
     )
 }

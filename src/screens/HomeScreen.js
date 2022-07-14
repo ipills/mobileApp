@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, FlatList, Pressable, Image, Dimensions, StatusBar } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, FlatList, Pressable, Image, Dimensions, StatusBar, Alert } from 'react-native'
 import { Icon } from 'react-native-elements'
 import HomeHeader from '../components/HomeHeader'
 import { colors, parameters } from '../global/styles'
@@ -36,7 +36,7 @@ function snapshotToArray(snapshot) {
     return returnArr;
 };
 
-export default function HomeScreen() {
+export default function HomeScreen(route) {
 
     const [delivery, setDelivery] = useState(true)
     const [farmacias, setFarmacias] = useState([])
@@ -44,6 +44,7 @@ export default function HomeScreen() {
     const [userData, setUserData] = useState({})
     const [nearF, setNearF] = useState([])
     const navigation = useNavigation()
+    const [productDat, setProductDat] = useState([])
 
 
     useOnceCall(async () => {
@@ -91,6 +92,22 @@ export default function HomeScreen() {
                 console.log("No data available");
             }
         });
+    }
+    function getProduct() {
+        const db = firebase.database().ref();
+        db.child('productData').get().then((snapshot) => {
+            if (snapshot.exists()) {
+                const productDat = snapshotToArray(snapshot);
+
+                const data = productDat
+                setProductDat(data)
+
+                console.log("Aconteceu")
+
+            }
+        }).catch((error) => {
+            console.error(error);
+        }); //
     }
 
 
@@ -146,6 +163,9 @@ export default function HomeScreen() {
                             name="tune"
                             color={colors.grey1}
                             size={26}
+                            onPress={() => {
+                                navigation.navigate('ChangeAddress')
+                            }}
                         />
                     </View>
                 </View>
@@ -182,7 +202,7 @@ export default function HomeScreen() {
                     />
                 </View>
                 <View style={styles.headerTextView}>
-                    <Text style={styles.headerText}>Encomenda Mais Rapida</Text>
+                    <Text style={styles.headerText}>Farmacias da Região</Text>
                 </View>
                 <View>
                     <FlatList
@@ -200,8 +220,24 @@ export default function HomeScreen() {
                                             farmaciaName={item.nome}
                                             distancia={item.distancia}
                                             farmaciaMorada={item.farmaciaMorada}
+                                            tempoEnt={item.tempoEntrega}
+                                            tempoRec={item.tempoRecolha}
                                             OnPressFarmaciaView={() => {
-                                                console.log('Olá')
+                                                console.log({
+                                                    farmaciaNome: item.nome, farmaciaImage: item.image, farmaciaDist: item.distancia,
+                                                    morada: item.farmaciaMorada, productosData: productDat, entrega: item.tempoEntrega, recolha: item.tempoRecolha
+                                                });
+
+                                                if (item.distancia < 100) {
+                                                    {
+                                                        navigation.navigate("FarmaciaHomeScreen", {
+                                                            farmaciaNome: item.nome, farmaciaImage: item.image, farmaciaDist: item.distancia,
+                                                            morada: item.farmaciaMorada, productosData: productDat, entrega: item.tempoEntrega, recolha: item.tempoRecolha
+                                                        })
+                                                    }
+                                                } else {
+                                                    Alert.alert("Atenção", "A farmacia está a mais de 100km de distância")
+                                                }
                                             }}
                                         />
                                     </View>
@@ -221,7 +257,6 @@ export default function HomeScreen() {
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={
                             ({ item, index }) => {
-                                console.log(item);
                                 return (
                                     <View key={item.id} style={{ paddingBottom: 20 }}>
                                         <FarmaciaView
@@ -230,8 +265,22 @@ export default function HomeScreen() {
                                             farmaciaName={item.nome}
                                             distancia={item.distancia}
                                             farmaciaMorada={item.farmaciaMorada}
-                                            onPress={() => {
-                                                console.log('Olá')
+                                            tempoEnt={item.tempoEntrega}
+                                            tempoRec={item.tempoRecolha}
+                                            OnPressFarmaciaView={() => {
+                                                if (item.distancia < 100) {
+                                                    {
+                                                        navigation.navigate('ClientStack', {
+                                                            screen: 'FarmaciaHomeScreen', params: {
+                                                                farmaciaNome: item.nome, farmaciaImage: item.image, farmaciaDist: item.distancia,
+                                                                morada: item.farmaciaMorada, productosData: productDat, entrega: item.tempoEntrega, recolha: item.tempoRecolha
+                                                            }
+                                                        })
+                                                    }
+
+                                                } else {
+                                                    Alert.alert("Atenção", "A farmacia está a mais de 100km de distância")
+                                                }
                                             }}
                                         />
                                     </View>

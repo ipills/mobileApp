@@ -12,6 +12,7 @@ import { TransitionPresets } from "@react-navigation/stack";
 import ChangePassword from "../screens/authScreens/PasswordChange";
 import EmailChange from "../screens/authScreens/EmailChange";
 import DeleteAccount from "../screens/authScreens/DeleteAccount";
+import ChangeMorada from "../screens/authScreens/ChangeAddress";
 
 const Auth = createNativeStackNavigator();
 
@@ -94,6 +95,14 @@ export default function AuthStack() {
                 <Auth.Screen
                     name="DeleteAccount"
                     component={DeleteAccount}
+                    options={{
+                        headerShown: false,
+                        ...TransitionPresets.RevealFromBottomAndroid
+                    }}
+                />
+                <Auth.Screen
+                    name="ChangeAddress"
+                    component={ChangeMorada}
                     options={{
                         headerShown: false,
                         ...TransitionPresets.RevealFromBottomAndroid

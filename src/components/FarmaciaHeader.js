@@ -5,18 +5,18 @@ import { dataFarmacias } from '../global/data'
 import { Icon } from 'react-native-elements'
 import { useNavigation } from '@react-navigation/native'
 
-export default function FarmaciaHeader({ navigation, id }) {
+export default function FarmaciaHeader({ navigation, imagem }) {
 
     const { navigate } = useNavigation();
 
     return (
-        <View style={styles.container}>
+        <View style={styles.containerHeader}>
             <ImageBackground
-                style={styles.container}
-                source={{ uri: dataFarmacias[id].images }}
+                style={styles.containerHeader}
+                source={{ uri: imagem }}
             >
-                <View style={styles.view1}>
-                    <View style={styles.view2}>
+                <View style={styles.view1Header}>
+                    <View style={styles.view2Header}>
                         <Icon
                             name="arrow-left"
                             type="material-community"
@@ -33,15 +33,15 @@ export default function FarmaciaHeader({ navigation, id }) {
 
 
 const styles = StyleSheet.create({
-    container: {
+    containerHeader: {
         height: 150,
     },
-    view1: {
+    view1Header: {
         flexDirection: 'row',
         alignItems: "baseline",
         justifyContent: "space-between",
     },
-    view2: {
+    view2Header: {
         margin: 10,
         width: 40,
         height: 40,

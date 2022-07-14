@@ -1,35 +1,136 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TouchableWithoutFeedbackBase } from 'react-native'
 import { colors, parameters } from '../global/styles';
 import { Icon, Button } from 'react-native-elements';
+import { db } from '../../firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as firebase from 'firebase';
 
-export default function MyOrdersScreen() {
-    return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <View>
-                    <Text style={styles.headerfont}>Os Seus Pedidos</Text>
-                </View>
-            </View>
-            <ScrollView style={{ backgroundColor: colors.grey5 }}>
-                <View style={{ flexDirection: "row" }}>
-                    <View style={styles.order}>
-                        <Text style={styles.textEstablecimento}>Nome Establecimentos</Text>
-                        <View style={styles.outros}>
-                            <Text style={styles.textOutros}>Quantidade Artigos /</Text>
-                            <Text style={styles.textOutros}>Valor</Text>
-                        </View>
-                        <Text style={styles.textOutros}>Data do Pedido</Text>
+function snapshotToArray(snapshot) {
+    var returnArr = [];
+
+    snapshot.forEach(function (childSnapshot) {
+        var item = childSnapshot.val();
+        item.key = childSnapshot.key;
+
+        returnArr.push(item);
+    });
+
+    return returnArr;
+};
+
+export default class MyOrdersScreen extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            userId: "",
+            orders: [],
+            farmacias: [],
+            productData: [],
+        };
+
+        this.getUserId();
+        this.getOrders();
+        this.getFarmacias();
+        this.getProductData();
+
+        this.getTotal = this.getTotal.bind(this);
+    }
+
+    getUserId = async () => {
+        const currentUserUid = await AsyncStorage.getItem('currentUserUid')
+        this.setState({ userId: currentUserUid })
+    }
+
+    getOrders = async () => {
+        db.ref().child("pedidos").get().then((snapshot) => {
+            if (snapshot.exists()) {
+                const _orders = snapshotToArray(snapshot);
+                this.setState({ orders: _orders.filter(o => o.idUtilizador === this.state.userId) })
+            } else {
+                console.log("No data available/UID");
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+    }
+
+    getFarmacias = async () => {
+        db.ref().child("farmacias").get().then((snapshot) => {
+            if (snapshot.exists()) {
+                const _farmacias = snapshotToArray(snapshot);
+                this.setState({ farmacias: _farmacias })
+            } else {
+                console.log("No data available/UID");
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+    }
+
+    getProductData = async () => {
+        db.ref().child("productData").get().then((snapshot) => {
+            if (snapshot.exists()) {
+                const _productData = snapshotToArray(snapshot);
+                this.setState({ productData: _productData })
+            } else {
+                console.log("No data available/UID");
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+    }
+
+    getTotal = (order) => {
+        let total = 0;
+        order.itens.forEach(item => {
+            const product = this.state.productData[item.idProduto - 1];
+            total += product.price * item.quantidade;
+        });
+        return total;
+    }
+
+    render() {
+        return (
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <View>
+                        <Text style={styles.headerfont}>Os Seus Pedidos</Text>
                     </View>
-                    <Button
-                        title="Ver Detalhes"
-                        titleStyle={styles.createButtonTitle}
-                        buttonStyle={styles.createButton}
-                    />
                 </View>
-            </ScrollView>
-        </View>
-    )
+                <ScrollView style={{ backgroundColor: colors.grey5 }}>
+                    <View style={{ flexDirection: "row" }}>
+                        {(this.state.orders.length > 0 && this.state.farmacias.length > 0 && this.state.productData.length > 0) ? this.state.orders.map((order, index) => {
+                            const farmacia = this.state.farmacias[order.idFarmacia];
+                            return (
+                                <>
+                                    <View style={styles.order}>
+                                        <Text style={styles.textEstablecimento}>{farmacia.nome}</Text>
+                                        <View style={styles.outros}>
+                                            {order.itens.map((product, index) => {
+                                                const _product = this.state.productData[product.idProduto - 1];
+                                                return (
+                                                    <View style={styles.produto}>
+                                                        <View style={{ flexDirection: "row" }}>
+                                                            <Text style={styles.textProduto}>{_product.name}</Text>
+                                                            <Text style={styles.textProduto}> x{product.quantidade}</Text>
+                                                        </View>
+                                                        <Text style={styles.textProduto}>€{(product.quantidade * parseFloat(_product.price)).toFixed(2)}</Text>
+                                                    </View>
+                                                )
+                                            })}
+                                        </View>
+                                        <Text style={styles.textEstablecimento}>Total: €{this.getTotal(order).toFixed(2)}</Text>
+                                        <Text style={styles.textOutros}>{Date(order.data).toLocaleUpperCase()}</Text>
+                                    </View>
+                                </>
+                            )
+                        }) : <Text style={styles.text}>Não tem pedidos</Text>}
+                    </View>
+                </ScrollView>
+            </View>
+        );
+    }
 }
 
 const styles = StyleSheet.create({

@@ -1,9 +1,56 @@
 import { Text, StyleSheet, View, ScrollView, Image } from 'react-native'
 import React, { Component } from 'react'
 import { colors } from '../global/styles'
-import { Icon, CheckBox } from 'react-native-elements'
+import { Icon, Button } from 'react-native-elements'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { TouchableOpacity } from 'react-native-gesture-handler'
 
 export default class PreferenceScreen extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            productId: this.props.route.params.produto.key,
+            quantity: 1,
+            price: this.props.route.params.produto.price,
+            name: this.props.route.params.produto.name,
+        }
+
+        this.data = this.props.route.params.produto;
+    }
+
+    async addToCart() {
+        await AsyncStorage.getItem('cart').then(cart => {
+            if (cart) {
+                cart = JSON.parse(cart);
+                if (cart.filter(item => item.productId === this.state.productId).length > 0) {
+                    cart = cart.map(item => {
+                        if (item.productId === this.state.productId) {
+                            item.quantity += this.state.quantity;
+                            return item;
+                        } else return item;
+                    });
+                } else {
+                    cart.push({
+                        productId: this.state.productId,
+                        quantity: this.state.quantity,
+                        price: this.state.price,
+                        name: this.state.name,
+                    });
+                }
+
+                AsyncStorage.setItem('cart', JSON.stringify(cart));
+                this.props.navigation.goBack()
+            } else {
+                AsyncStorage.setItem('cart', JSON.stringify([this.state]));
+            }
+        }
+        ).catch(err => {
+            console.log(err);
+        }
+        );
+    }
+
     render() {
         return (
             <View style={styles.container}>
@@ -11,7 +58,7 @@ export default class PreferenceScreen extends Component {
                     <View style={styles.header}>
                         <Image
                             style={styles.backgroundImage}
-                            source={{ uri: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80' }}
+                            source={{ uri: this.data.image }}
                         />
                     </View>
                     <View style={styles.view12}>
@@ -24,36 +71,57 @@ export default class PreferenceScreen extends Component {
                         />
                     </View>
                     <View style={styles.view1}>
-                        <Text style={styles.text1}>Farmaco</Text>
-                        <Text style={styles.text2}>Este Farmaco é muito fixe, porque faz bem as peles é tal, eu diria que é um queque drenante</Text>
+                        <Text style={styles.text1}>{this.data.name}</Text>
+                        <Text style={styles.text2}>{this.data.descricao}</Text>
                     </View>
                 </ScrollView>
+
                 <View style={styles.view14}>
-                    <Text style={styles.text11}>Quantidade</Text>
-                </View>
-                <View style={styles.view14}>
-                    <View style={styles.view15}>
-                        <Icon
-                            name="remove"
-                            type="material"
-                            color={colors.black}
-                            size={25}
-                        />
-                    </View>
-                    <Text style={styles.text9}>Quantidade Numero</Text>
-                    <View style={styles.view16}>
-                        <Icon
-                            name="add"
-                            type="material"
-                            color={colors.black}
-                            size={25}
-                        />
-                    </View>
+                    <TouchableOpacity
+                        onPress={() => {
+                            if (this.state.quantity > 1) {
+                                this.setState({ quantity: this.state.quantity - 1 })
+                            }
+                        }}
+                    >
+                        <View style={styles.view15}>
+                            <Icon
+                                name="remove"
+                                type="material"
+                                color={colors.black}
+                                size={25}
+                            />
+                        </View>
+                    </TouchableOpacity>
+                    <Text style={styles.text9}>{this.state.quantity}</Text>
+                    <TouchableOpacity
+                        onPress={() => {
+                            if (this.state.quantity < 10) {
+                                this.setState({ quantity: this.state.quantity + 1 })
+                            }
+                        }}
+                    >
+                        <View style={styles.view16}>
+                            <Icon
+                                name="add"
+                                type="material"
+                                color={colors.black}
+                                size={25}
+                            />
+                        </View>
+                    </TouchableOpacity>
                 </View>
                 <View style={styles.view17}>
                     <View style={styles.view18}>
-                        <Text style={styles.text10}>Preço: 200
-                        </Text>
+                        <Text style={styles.text10}>Preço: €{(this.state.quantity * this.data.price).toFixed(2)}</Text>
+                        <Button
+                            buttonStyle={styles.button}
+                            titleStyle={styles.title}
+                            title="Adicionar ao carrinho"
+                            onPress={() => {
+                                this.addToCart()
+                            }}
+                        />
                     </View>
                 </View>
             </View>
@@ -286,6 +354,29 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between",
         paddingRight: 10
-    }
+    },
+    button: {
+        backgroundColor: colors.orange,
+        alignContent: "center",
+        justifyContent: "center",
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: colors.orange,
+        height: 50,
+        paddingHorizontal: 20,
+        width: '100%'
+
+    },
+
+    title: {
+        color: "white",
+        fontSize: 20,
+        fontWeight: "bold",
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: -3,
+        marginRight: 20
+
+    },
 
 })

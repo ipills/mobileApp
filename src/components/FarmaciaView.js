@@ -17,7 +17,9 @@ export default function FarmaciaView({
     screenWidth
 }) {
     return (
-        <TouchableOpacity>
+        <TouchableOpacity
+            onPress={OnPressFarmaciaView}
+        >
             <View style={{ ...styles.cardView, width: screenWidth }}>
                 <Image
                     style={{ ...styles.image, width: screenWidth }}

@@ -6,6 +6,7 @@ import SearchResultScreen from '../screens/SearchResultScreen';
 import FarmaciaHomeScreen from '../screens/FarmaciaHomeScreen';
 import PreferenceScreen from '../screens/PreferenceScreen';
 import ShoppingCart from '../screens/ShoppingCart';
+import PurchaseScreen from '../screens/PurchaseScreen';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 
@@ -50,6 +51,14 @@ export function ClientStack({ navigation, route }) {
             <ClientSearch.Screen
                 name="ShoppingCart"
                 component={ShoppingCart}
+                options={() => ({
+                    headerShown: false,
+                })
+                }
+            />
+            <ClientSearch.Screen
+                name="PurchaseScreen"
+                component={PurchaseScreen}
                 options={() => ({
                     headerShown: false,
                 })

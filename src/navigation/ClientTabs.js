@@ -8,6 +8,7 @@ import { ClientStack } from './ClientStack';
 import MyAccountScreen from '../screens/MyAccountScreen';
 import MyOrdersScreen from '../screens/MyOrdersScreen';
 import farmaciaMapScreen from '../screens/FarmaciaMapScreen';
+import AuthStack from './authNavigation';
 
 
 

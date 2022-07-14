@@ -1,12 +1,24 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions, Image } from 'react-native'
+import React, { useEffect, useState, useRef } from 'react'
 import { colors, parameters } from '../global/styles'
 import { Icon, Button } from 'react-native-elements'
 import { useNavigation } from '@react-navigation/native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
-export default function ShoppingCart() {
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
-    const navigation = useNavigation()
+export default function ShoppingCart({ navigation, route }) {
+
+    const [cart, setCart] = useState([])
+    const [total, setTotal] = useState(0.0)
+
+    useEffect(async () => {
+        const _cart = await AsyncStorage.getItem('cart').then(c => JSON.parse(c));
+        if (_cart && _cart.length > 0) {
+            setCart(_cart)
+            setTotal(_cart.reduce((acc, cur) => acc + cur.price * cur.quantity, 0))
+        }
+    }, [])
 
     return (
         <View style={styles.container}>
@@ -29,18 +41,33 @@ export default function ShoppingCart() {
             <Text style={styles.textTitle}>O Seu Pedido</Text>
             <ScrollView style={{ backgroundColor: colors.grey5 }}>
                 <View style={styles.order}>
-                    <Text style={styles.textFarmaco}>Farmaco</Text>
-                    <Text style={styles.textValor}>Valor</Text>
+                    {cart.map((item, index) => {
+                        return (
+                            <View style={styles.view1List} key={index}>
+                                <View style={styles.view2List}>
+                                    <View style={styles.view3List}>
+                                        <Text style={styles.text1List}>{item.name}</Text>
+                                        <Text style={styles.textValor}> x{item.quantity}</Text>
+                                        <Text style={styles.text2List}>{parseFloat(item.price).toFixed(2)}€</Text>
+                                    </View>
+                                </View>
+                            </View>
+                        )
+                    })}
                 </View>
             </ScrollView>
-            <TouchableOpacity>
+            <TouchableOpacity
+                onPress={() => {
+                    navigation.navigate('PurchaseScreen', { price: parseFloat(total), idFarmacia: route.params.idFarmacia })
+                }}
+            >
                 <View style={styles.view11}>
                     <View style={styles.view12}>
-                        <Text style={styles.text13}>Preco</Text>
+                        <Text style={styles.text13}>€{parseFloat(total).toFixed(2)}</Text>
                         <Text style={styles.text14}>Finalizar Compra</Text>
                         <View style={styles.view13}>
                             {/* Quantidade de Produtos no Carrinho */}
-                            <Text style={styles.text13}>1</Text>
+                            <Text style={styles.text13}>{cart ? cart.length : 0}</Text>
                         </View>
                     </View>
                 </View>
@@ -76,6 +103,7 @@ const styles = StyleSheet.create({
         fontSize: 28,
         color: colors.orange,
         fontWeight: "bold",
+        marginLeft: 5
     },
     textFarmaco: {
         fontSize: 16,
@@ -125,5 +153,37 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: colors.cardbackground,
         marginRight: '9%'
+    },
+
+    view1List: {
+        backgroundColor: "white",
+        elevation: 4,
+        shadowOpacity: 0.4,
+        shadowColor: "black",
+        margin: 5,
+        width: SCREEN_WIDTH * 0.975,
+        padding: 10
+    },
+    view2List: {
+        flexDirection: "row",
+        padding: 0,
+        justifyContent: "space-between",
+    },
+    view3List: {
+        justifyContent: "space-between",
+        width: 250
+    },
+    view4List: {
+        width: 75,
+        height: 65
+    },
+    text1List: {
+        fontSize: 14,
+        color: colors.grey1,
+        fontWeight: "bold",
+    },
+    text2List: {
+        fontSize: 12,
+        color: colors.grey1,
     },
 })
