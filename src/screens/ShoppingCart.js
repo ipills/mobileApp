@@ -94,11 +94,6 @@ const styles = StyleSheet.create({
         marginTop: 8,
 
     },
-    order: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        paddingVertical: 10,
-    },
     textTitle: {
         fontSize: 28,
         color: colors.orange,

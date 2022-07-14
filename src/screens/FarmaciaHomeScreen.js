@@ -209,6 +209,7 @@ const FarmaciaHomeScreen = ({ navigation, route }) => {
                         {productDat.map((item, index) => {
                             return (
                                 <TouchableOpacity
+                                    key={index}
                                     onPress={() =>
                                         navigation.navigate('PreferenceScreen', { produto: item })
                                     }

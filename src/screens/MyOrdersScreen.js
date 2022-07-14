@@ -99,18 +99,18 @@ export default class MyOrdersScreen extends React.Component {
                     </View>
                 </View>
                 <ScrollView style={{ backgroundColor: colors.grey5 }}>
-                    <View style={{ flexDirection: "row" }}>
+                    <View>
                         {(this.state.orders.length > 0 && this.state.farmacias.length > 0 && this.state.productData.length > 0) ? this.state.orders.map((order, index) => {
                             const farmacia = this.state.farmacias[order.idFarmacia];
                             return (
                                 <>
-                                    <View style={styles.order}>
+                                    <View style={styles.order} key={"order_" + index}>
                                         <Text style={styles.textEstablecimento}>{farmacia.nome}</Text>
                                         <View style={styles.outros}>
                                             {order.itens.map((product, index) => {
                                                 const _product = this.state.productData[product.idProduto - 1];
                                                 return (
-                                                    <View style={styles.produto}>
+                                                    <View style={styles.produto} key={"prod_" + index}>
                                                         <View style={{ flexDirection: "row" }}>
                                                             <Text style={styles.textProduto}>{_product.name}</Text>
                                                             <Text style={styles.textProduto}> x{product.quantidade}</Text>
@@ -154,10 +154,8 @@ const styles = StyleSheet.create({
     order: {
         flexDirection: "column",
         paddingVertical: 10,
-        marginLeft: "3%"
-    },
-    outros: {
-        flexDirection: "row",
+        marginLeft: "3%",
+        marginBottom: 10
     },
     textTitle: {
         fontSize: 28,
@@ -233,6 +231,9 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         marginTop: -3
+    },
+    produto: {
+        marginBottom: 5,
     }
 
 })
