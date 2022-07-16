@@ -28,9 +28,7 @@ export default function MyAccountScreen() {
             .signOut()
             .then(async () => {
                 await AsyncStorage.removeItem('currentUserUid');
-                navigation.navigate('AuthStack', {
-                    screen: 'SignInScreen'
-                });
+                navigation.navigate('SignInScreen');
             })
             .catch(error => alert(error.message))
     }
